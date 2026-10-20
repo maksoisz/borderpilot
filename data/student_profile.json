@@ -1,0 +1,31 @@
+{
+  "_comment": "FICTIONAL student profile for the sandbox demo.",
+  "user_id": "student-001",
+  "display_name": "Ola (fictional) - Polish student starting a degree abroad",
+  "home_ccy": "PLN",
+  "monthly_income": "1500.00",
+  "accounts": [
+    {"currency": "PLN", "balance": "60000.00", "funding": true},
+    {"currency": "GBP", "balance": "1200.00"}
+  ],
+  "transactions": [
+    {"date": "2026-07-01", "description": "Rent - landlord", "amount": "-750.00", "currency": "GBP"},
+    {"date": "2026-07-06", "description": "Supermarket", "amount": "-210.40", "currency": "GBP"},
+    {"date": "2026-07-09", "description": "Metro monthly ticket", "amount": "-45.00", "currency": "GBP"},
+    {"date": "2026-07-12", "description": "Phone plan subscription", "amount": "-12.00", "currency": "GBP"},
+    {"date": "2026-07-15", "description": "Streaming subscription", "amount": "-10.99", "currency": "GBP"},
+    {"date": "2026-07-28", "description": "Textbooks", "amount": "-60.00", "currency": "GBP"},
+    {"date": "2026-08-01", "description": "Rent - landlord", "amount": "-750.00", "currency": "GBP"},
+    {"date": "2026-08-05", "description": "Supermarket", "amount": "-228.15", "currency": "GBP"},
+    {"date": "2026-08-09", "description": "Metro monthly ticket", "amount": "-45.00", "currency": "GBP"},
+    {"date": "2026-08-12", "description": "Phone plan subscription", "amount": "-12.00", "currency": "GBP"},
+    {"date": "2026-08-15", "description": "Streaming subscription", "amount": "-10.99", "currency": "GBP"},
+    {"date": "2026-08-20", "description": "Train ticket home", "amount": "-320.00", "currency": "PLN"},
+    {"date": "2026-09-01", "description": "Rent - landlord", "amount": "-750.00", "currency": "GBP"},
+    {"date": "2026-09-04", "description": "Supermarket", "amount": "-221.70", "currency": "GBP"},
+    {"date": "2026-09-09", "description": "Metro monthly ticket", "amount": "-45.00", "currency": "GBP"},
+    {"date": "2026-09-12", "description": "Phone plan subscription", "amount": "-12.00", "currency": "GBP"},
+    {"date": "2026-09-15", "description": "Streaming subscription", "amount": "-10.99", "currency": "GBP"},
+    {"date": "2026-09-25", "description": "Monthly support from parents", "amount": "1500.00", "currency": "PLN"}
+  ]
+}

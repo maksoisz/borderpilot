@@ -1,0 +1,8 @@
+Rechnung / Invoice 2026-5531
+From: Studierendensekretariat <fees@rheinland-uas.example>
+Payee: Rheinland Applied Sciences University
+IBAN: DE89 3704 0044 0532 0130 00
+BIC: RASUDEFF
+Amount due: 1.480,50 EUR
+Due date: 11.12.2026
+Payment reference: 2026-5531

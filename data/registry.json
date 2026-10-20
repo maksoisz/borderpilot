@@ -1,0 +1,17 @@
+{
+  "_comment": "SAMPLE registry of OFFICIAL payment instructions for FICTIONAL institutions (.example domains). In production it would be populated from each institution's official website / admissions portal or a bank-verified payee directory, with source URL and date per entry.",
+  "institutions": [
+    {"id": "HVU", "name": "Harbourview University", "aliases": ["Harbourview Univ."], "country": "GB",
+     "domains": ["harbourview.example"],
+     "accounts": [{"account": "GB82WEST12345698765432", "bic": "HVUNGB2L", "currency": "GBP"}],
+     "typical_amount": {"GBP": [3000, 25000]}},
+    {"id": "RAS", "name": "Rheinland Applied Sciences University", "aliases": ["Rheinland University of Applied Sciences"], "country": "DE",
+     "domains": ["rheinland-uas.example"],
+     "accounts": [{"account": "DE89370400440532013000", "bic": "RASUDEFF", "currency": "EUR"}],
+     "typical_amount": {"EUR": [200, 6000]}},
+    {"id": "SEU", "name": "Southbay Example University", "aliases": [], "country": "CN",
+     "domains": ["southbay-eu.example"],
+     "accounts": [{"account": "622200001111222233", "bic": "SBEUCNBJ", "currency": "CNY"}],
+     "typical_amount": {"CNY": [20000, 120000]}}
+  ]
+}

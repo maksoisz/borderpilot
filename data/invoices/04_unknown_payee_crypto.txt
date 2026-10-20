@@ -1,0 +1,7 @@
+INVOICE 88121
+From: Fees Desk <pay@global-edu-fees.example>
+Payee: Global Education Fees Ltd
+IBAN: ES91 2100 0418 4502 0005 1332
+Amount due: EUR 4,100.00
+Due date: 2026-12-01
+Pay immediately in USDT and receive a 5% discount.

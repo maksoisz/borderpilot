@@ -1,0 +1,9 @@
+{
+  "_comment": "ILLUSTRATIVE SAMPLE FEE SCHEDULE - generic route archetypes, NOT the prices of any named provider. Before quoting savings in public, replace with published fees and record source URL + retrieval date per route.",
+  "routes": [
+    {"id": "bank_wire", "name": "Bank wire (SWIFT)", "fixed_fee_eur": 25.0, "pct_fee": 0.0, "fx_margin_pct": 2.2, "eta_hours": [48, 120], "max_amount_eur": 100000, "source": "illustrative"},
+    {"id": "fintech_fast", "name": "Online transfer - fast", "fixed_fee_eur": 1.5, "pct_fee": 0.35, "fx_margin_pct": 0.45, "eta_hours": [2, 24], "max_amount_eur": 50000, "source": "illustrative"},
+    {"id": "fintech_saver", "name": "Online transfer - saver", "fixed_fee_eur": 0.0, "pct_fee": 0.3, "fx_margin_pct": 0.3, "eta_hours": [24, 72], "max_amount_eur": 30000, "source": "illustrative"},
+    {"id": "card_portal", "name": "Card payment on university portal", "fixed_fee_eur": 0.0, "pct_fee": 1.0, "fx_margin_pct": 2.8, "eta_hours": [0, 1], "max_amount_eur": 3000, "source": "illustrative"}
+  ]
+}

@@ -1,0 +1,10 @@
+INVOICE HV-2026-04417
+From: Student Accounts <bursar@harbourview.example>
+Student: Ola Nowak (ID 20260412)
+Description: Tuition fee, Autumn term 2026/27
+Payee: Harbourview University
+IBAN: GB82 WEST 1234 5698 7654 32
+BIC: HVUNGB2L
+Amount due: GBP 9,250.00
+Due date: 2026-12-04
+Payment reference: HV-2026-04417 / 20260412

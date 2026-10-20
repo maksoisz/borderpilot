@@ -1,0 +1,9 @@
+INVOICE SB-2026-0099
+From: Finance Office <finance@southbay-eu.example>
+Description: Tuition and accommodation, Spring semester
+Payee: Southbay Example University
+Account: 6222 0000 1111 2222 33
+BIC/SWIFT: SBEUCNBJ
+Amount due: CNY 52,000
+Due date: 2027-01-15
+Payment reference: SB-2026-0099

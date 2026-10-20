@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BorderPilot sandbox</title>
+<style>
+:root{
+  --paper:#EAF0F4; --surface:#FFFFFF; --ink:#14233B; --muted:#56677D; --rule:#CCD7E1; --wash:#F4F7FA;
+  --route:#1D6E86; --route-ink:#0F4C5E; --ok:#23714A; --warn:#9A6212; --bad:#A8261C;
+  --ok-wash:#E6F2EB; --warn-wash:#FBF1E0; --bad-wash:#FBE9E7;
+  --sans: "Segoe UI Variable Text","Segoe UI","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  --code: ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{--paper:#0E1726; --surface:#16223A; --ink:#E4EBF3; --muted:#9AAABC; --rule:#2A3A55; --wash:#1B2943;
+        --route:#4FB3CF; --route-ink:#8BD3E6; --ok:#5CC08A; --warn:#E3A84A; --bad:#F07A6E;
+        --ok-wash:#173528; --warn-wash:#3A2C14; --bad-wash:#3D1C1A;}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--sans);font-variant-numeric:tabular-nums}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--route);outline-offset:2px}
+.bar{padding:20px 16px 14px;border-bottom:1px solid var(--rule);background:var(--surface)}
+.bar-in{max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px 28px;align-items:end;justify-content:space-between}
+.brand{display:flex;gap:12px;align-items:center}
+.brand h1{margin:0;font-size:1.6rem;letter-spacing:-.01em;font-weight:700}
+.brand p{margin:2px 0 0;color:var(--muted);max-width:62ch;font-size:.95rem}
+.env{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{border:1px solid var(--rule);border-radius:999px;padding:3px 10px;font-size:.82rem;color:var(--muted);background:var(--wash)}
+.pill.sandbox{border-color:var(--route);color:var(--route-ink)}
+.ghost{border:1px solid var(--rule);background:transparent;color:var(--ink);border-radius:8px;padding:5px 12px;font-size:.88rem}
+.layout{max-width:1240px;margin:0 auto;padding:20px 16px 60px;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:24px;align-items:start}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}.slip-wrap{order:-1;position:static}}
+.block{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:18px 18px 16px;margin-bottom:16px}
+.block h2{margin:0 0 10px;font-size:1.08rem;font-weight:650}
+.block p.hint{margin:0 0 12px;color:var(--muted);font-size:.92rem;max-width:70ch}
+.samples{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.samples button{border:1px solid var(--rule);background:var(--wash);color:var(--ink);border-radius:6px;padding:5px 10px;font-size:.86rem}
+.samples button[aria-pressed=true]{border-color:var(--route);background:var(--surface);box-shadow:inset 0 0 0 1px var(--route)}
+textarea{width:100%;min-height:170px;resize:vertical;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;background:var(--wash);color:var(--ink);font:13.5px/1.5 var(--code)}
+.primary{margin-top:10px;background:var(--route);color:#fff;border:0;border-radius:8px;padding:9px 18px;font-weight:600}
+@media (prefers-color-scheme: dark){.primary{color:#06202A}}
+.primary:disabled{opacity:.55;cursor:progress}
+.empty{color:var(--muted);font-size:.92rem;margin:0}
+/* agent steps: a real sequence, so numbered */
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:30px 1fr;gap:4px 10px;padding:9px 0;border-top:1px solid var(--rule)}
+ol.steps li:first-child{border-top:0}
+ol.steps li::before{content:counter(s);grid-row:span 2;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--route);color:var(--route-ink);display:grid;place-items:center;font-size:.8rem;font-weight:700}
+ol.steps li.denied::before{border-color:var(--bad);color:var(--bad)}
+.step-t{font-weight:600;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.tier{font-size:.74rem;font-weight:600;border-radius:4px;padding:1px 6px;border:1px solid var(--rule);color:var(--muted)}
+.tier.PROPOSE{border-color:var(--warn);color:var(--warn)}
+.tier.EXECUTE{border-color:var(--bad);color:var(--bad)}
+.who{font-size:.78rem;color:var(--muted);font-weight:400}
+.step-s{color:var(--muted);font-size:.9rem;overflow-wrap:anywhere}
+.step-s b{color:var(--bad)}
+/* risk meter */
+.meter{position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--ok-wash) 0 30%,var(--warn-wash) 30% 70%,var(--bad-wash) 70%);border:1px solid var(--rule);margin:6px 0 4px}
+.meter i{position:absolute;top:-4px;width:3px;height:16px;background:var(--ink);border-radius:2px}
+.meter-l{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted)}
+ul.reasons{margin:12px 0 0;padding:0;list-style:none}
+ul.reasons li{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:7px 0;border-top:1px solid var(--rule);font-size:.92rem}
+ul.reasons li span{font-weight:700;color:var(--bad);text-align:right}
+.passed{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.passed span{font-size:.8rem;border:1px solid var(--ok);color:var(--ok);border-radius:999px;padding:1px 9px}
+/* tables */
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.82rem}
+td.n,th.n{text-align:right;white-space:nowrap}
+tr.rec td{background:var(--ok-wash)}
+tr.rec td:first-child{box-shadow:inset 3px 0 0 var(--ok)}
+.yes{color:var(--ok);font-weight:600}.no{color:var(--bad);font-weight:600}
+.why{margin:10px 0 0;font-size:.92rem;color:var(--muted)}
+/* runway */
+.runway{display:flex;flex-wrap:wrap;gap:18px 36px;align-items:end}
+.runway div{min-width:120px}
+.runway b{display:block;font-size:1.9rem;line-height:1.1;font-weight:700;letter-spacing:-.01em}
+.runway span{font-size:.86rem;color:var(--muted)}
+.runway .arrow{font-size:1.4rem;color:var(--muted);align-self:center}
+.status-OK{color:var(--ok)}.status-WARNING{color:var(--warn)}.status-CRITICAL{color:var(--bad)}.status-SUSTAINABLE{color:var(--ok)}
+.balances{margin:12px 0 0;font-size:.9rem;color:var(--muted)}
+/* the payment slip: the one bold element */
+.slip-wrap{position:sticky;top:16px}
+.slip{background:var(--surface);border:1px solid var(--rule);border-radius:4px;position:relative;overflow:hidden;
+  background-image:repeating-linear-gradient(135deg,transparent 0 11px,color-mix(in srgb,var(--route) 6%,transparent) 11px 12px);}
+.slip::before{content:"";position:absolute;inset:0 0 auto 0;height:6px;background:repeating-linear-gradient(90deg,var(--route) 0 18px,transparent 18px 26px)}
+.slip-in{padding:26px 22px 20px;position:relative}
+.slip h2{margin:0;font-size:1.25rem;font-weight:700}
+.slip .ref{margin:2px 0 14px;color:var(--muted);font-size:.86rem}
+.stamp{position:absolute;right:16px;top:26px;transform:rotate(-8deg);border:3px double currentColor;border-radius:6px;padding:4px 12px 3px;
+  font-weight:800;font-size:1.15rem;letter-spacing:.08em;text-align:center;line-height:1.1;background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.stamp small{display:block;font-size:.66rem;letter-spacing:.04em;font-weight:600}
+.stamp.VERIFIED{color:var(--ok)}.stamp.REVIEW{color:var(--warn)}.stamp.BLOCKED{color:var(--bad)}.stamp.PAID{color:var(--route)}
+.stamp.land{animation:land .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes land{from{transform:rotate(-8deg) scale(1.9);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
+@media (prefers-reduced-motion: reduce){.stamp.land{animation:none}}
+dl.fields{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.95rem;padding:12px 0;border-top:1px dashed var(--rule);border-bottom:1px dashed var(--rule)}
+dl.fields dt{color:var(--muted)}
+dl.fields dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+dl.fields dd.big{font-size:1.25rem}
+.explain{white-space:pre-line;font-size:.92rem;margin:14px 0;color:var(--ink)}
+.fp{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:.86rem;color:var(--muted);margin-bottom:12px}
+.fp code{font-family:var(--code);color:var(--ink);font-size:.82rem;overflow-wrap:anywhere}
+.stepup{display:flex;gap:10px;align-items:flex-start;background:var(--warn-wash);border:1px solid var(--warn);border-radius:6px;padding:10px;font-size:.9rem;margin-bottom:12px}
+.stepup input{margin-top:3px;width:18px;height:18px;flex:none}
+.sign{width:100%;background:var(--ink);color:var(--surface);border:0;border-radius:6px;padding:12px;font-weight:700;font-size:1.02rem}
+.sign:disabled{opacity:.45;cursor:not-allowed}
+.fine{font-size:.8rem;color:var(--muted);margin:8px 0 0}
+.notice{border-radius:6px;padding:10px 12px;font-size:.92rem;margin:12px 0 0}
+.notice.bad{background:var(--bad-wash);border:1px solid var(--bad)}
+.notice.ok{background:var(--ok-wash);border:1px solid var(--ok)}
+.notice.warn{background:var(--warn-wash);border:1px solid var(--warn)}
+.chain-ok{color:var(--ok);font-weight:600}.chain-bad{color:var(--bad);font-weight:600}
+td code{font-family:var(--code);font-size:.78rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <div class="brand">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><circle cx="8" cy="30" r="4" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="32" cy="10" r="4" fill="currentColor"/><path d="M11 27 C 16 8, 24 26, 29 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="3 3"/></svg>
+      <div>
+        <h1>BorderPilot</h1>
+        <p>An AI agent that pays study-abroad bills. It reads the invoice, checks who you are paying, finds the cheapest route that arrives in time, and then waits for your signature.</p>
+      </div>
+    </div>
+    <div class="env">
+      <span class="pill sandbox">Sandbox: no real money moves</span>
+      <span class="pill" id="planner">Planner</span>
+      <span class="pill" id="fxsrc">FX</span>
+      <button class="ghost" id="reset" type="button">Start over</button>
+    </div>
+  </div>
+</header>
+
+<main class="layout">
+  <div class="work">
+    <section class="block" aria-labelledby="h-inv">
+      <h2 id="h-inv">Invoice</h2>
+      <p class="hint">Pick a sample or paste your own invoice text. Three samples are genuine; four are fraud attempts.</p>
+      <div class="samples" id="samples" role="group" aria-label="Sample invoices"></div>
+      <label for="doc" class="sr">Invoice text</label>
+      <textarea id="doc" spellcheck="false" placeholder="Paste invoice text here"></textarea>
+      <button class="primary" id="run" type="button">Run the agent</button>
+    </section>
+
+    <section class="block" aria-labelledby="h-steps">
+      <h2 id="h-steps">What the agent did</h2>
+      <ol class="steps" id="steps"><li class="empty" style="display:block">Nothing yet. Run the agent to see each step and its permission level.</li></ol>
+    </section>
+
+    <section class="block" aria-labelledby="h-check" id="check-b" hidden>
+      <h2 id="h-check">Who you are paying</h2>
+      <div id="check"></div>
+    </section>
+
+    <section class="block" aria-labelledby="h-routes" id="routes-b" hidden>
+      <h2 id="h-routes">Routes compared</h2>
+      <div class="tw"><table id="routes"></table></div>
+      <p class="why" id="routes-why"></p>
+    </section>
+
+    <section class="block" aria-labelledby="h-budget" id="budget-b" hidden>
+      <h2 id="h-budget">How long your money lasts</h2>
+      <div id="budget"></div>
+    </section>
+
+    <section class="block" aria-labelledby="h-drills">
+      <h2 id="h-drills">Try to break it</h2>
+      <p class="hint">Runs every scripted attack (a hijacked AI, forged or replayed approvals, edited plans, a tampered log) against a fresh sandbox and shows what stopped it.</p>
+      <button class="ghost" id="drills" type="button">Run all attacks</button>
+      <div class="tw"><table id="drills-t"></table></div>
+    </section>
+
+    <section class="block" aria-labelledby="h-audit">
+      <h2 id="h-audit">Audit log</h2>
+      <p class="hint">Every tool call, denial, approval and payment is chained with SHA-256, so editing any past entry breaks the chain.</p>
+      <button class="ghost" id="audit" type="button">Check the log</button>
+      <p id="chain" aria-live="polite"></p>
+      <div class="tw"><table id="audit-t"></table></div>
+    </section>
+  </div>
+
+  <div class="slip-wrap">
+    <section class="slip" aria-labelledby="h-slip" aria-live="polite">
+      <div class="slip-in" id="slip">
+        <h2 id="h-slip">Payment slip</h2>
+        <p class="ref">Pick an invoice and run the agent. Your slip appears here to approve.</p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const STEP_NAMES = {read_invoice:"Read the invoice", verify_payee:"Checked the payee", get_fx_quote:"Got the exchange rate",
+  compare_routes:"Compared payment routes", forecast_budget:"Forecast the budget", propose_payment:"Prepared the payment slip",
+  execute_payment:"Paid in the sandbox"};
+const TIER_NAMES = {READ:"Read only", PROPOSE:"Propose", EXECUTE:"Move money", UNKNOWN:"Unknown"};
+let current = null, lastStamp = "";
+
+async function api(path, body){
+  const opt = body === undefined ? {} : {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)};
+  const r = await fetch(path, opt);
+  const j = await r.json().catch(() => ({error:"The server sent an unreadable reply."}));
+  return {status:r.status, ...j};
+}
+
+function render(res){
+  if (res.meta){ $("planner").textContent = res.meta.planner; $("fxsrc").textContent = "FX: " + res.meta.fx; }
+  const s = res.state; if (!s) return; current = s;
+  renderSteps(s); renderCheck(s); renderRoutes(s); renderBudget(s); renderSlip(s, res);
+}
+
+function renderSteps(s){
+  const ol = $("steps");
+  if (!s.trace.length){ ol.innerHTML = '<li class="empty" style="display:block">Nothing yet. Run the agent to see each step and its permission level.</li>'; return; }
+  ol.innerHTML = s.trace.map(t => `<li class="${t.ok ? "" : "denied"}">
+    <div class="step-t">${esc(STEP_NAMES[t.tool] || t.tool)} <span class="tier ${esc(t.tier)}">${esc(TIER_NAMES[t.tier] || t.tier)}</span>
+      <span class="who">${t.actor === "user" ? "by you" : "by the agent"}</span></div>
+    <div class="step-s">${t.ok ? esc(t.summary) : `<b>Denied: ${esc(t.code)}</b> ${esc(t.summary)}`}</div></li>`).join("");
+}
+
+function renderCheck(s){
+  const v = s.verification, b = $("check-b");
+  if (!v){ b.hidden = true; return; } b.hidden = false;
+  const inv = s.invoice || {};
+  $("check").innerHTML = `
+    <p class="hint">${esc(inv.payee || "Unknown payee")}, account ${esc(inv.account_masked || "?")}${inv.sender_domain ? `, sent from ${esc(inv.sender_domain)}` : ""}.</p>
+    <div class="meter" role="img" aria-label="Risk ${v.risk_score} out of 100"><i style="left:calc(${Math.min(100, v.risk_score)}% - 1px)"></i></div>
+    <div class="meter-l"><span>0 safe</span><span>30 needs your check</span><span>70 blocked</span><span>100</span></div>
+    ${v.reasons.length ? `<ul class="reasons">${v.reasons.map(r => `<li><span>+${esc(r.points)}</span><div>${esc(r.message)}</div></li>`).join("")}</ul>`
+                       : `<p class="notice ok">No warning signs. The payee, account and sender match the institution's official details.</p>`}
+    ${v.passed.length ? `<div class="passed">${v.passed.map(p => `<span>${esc(p.replaceAll("_"," ").toLowerCase())}</span>`).join("")}</div>` : ""}`;
+}
+
+function renderRoutes(s){
+  const c = s.comparison, b = $("routes-b");
+  if (!c){ b.hidden = true; return; } b.hidden = false;
+  $("routes").innerHTML = `<thead><tr><th>Route</th><th class="n">You pay</th><th class="n">Cost above mid-rate</th><th>Arrives by</th><th>In time?</th></tr></thead><tbody>` +
+    c.options.map(o => `<tr class="${o.route_id === c.recommended ? "rec" : ""}"><td>${esc(o.name)}${o.route_id === c.recommended ? " <strong>(recommended)</strong>" : ""}</td>
+      <td class="n">${esc(o.total.text)}</td><td class="n">${esc(o.cost_vs_mid.text)} (${esc(o.cost_pct)}%)</td>
+      <td>${esc(o.arrives_by)}</td><td class="${o.deadline_ok ? "yes" : "no"}">${o.deadline_ok ? "Yes" : "No"}</td></tr>`).join("") +
+    c.excluded.map(e => `<tr><td>${esc(e.name)}</td><td colspan="4" class="why">Not available: ${esc(e.reason)}</td></tr>`).join("") + "</tbody>";
+  $("routes-why").textContent = c.rationale + (s.quote && !s.quote.live ? " Fees and rates are illustrative samples." : "");
+}
+
+function renderBudget(s){
+  const f = s.forecast, b = $("budget-b");
+  if (!f){ b.hidden = true; return; } b.hidden = false;
+  const m = (x) => x.runway_months ? `${x.runway_months} months` : "No end in sight";
+  $("budget").innerHTML = `<div class="runway">
+      <div><b>${esc(m(f.before))}</b><span>today (${esc(f.before.total.text)})</span></div>
+      ${f.after ? `<div class="arrow" aria-hidden="true">›</div><div><b class="status-${esc(f.after.status)}">${esc(m(f.after))}</b><span>${s.status === "EXECUTED" ? "now" : "after this payment"} (${esc(f.after.total.text)})</span></div>` : ""}
+    </div>
+    <p class="balances">Spending ${esc(f.burn.text)} a month, receiving ${esc(f.income.text)}. Accounts: ${s.balances.map(x => esc(x.balance.text)).join(", ")}.</p>`;
+}
+
+function renderSlip(s, res){
+  const el = $("slip"), v = s.verification, p = s.plan;
+  let stamp = "", body = "";
+  if (s.status === "EXECUTED" && s.receipt){
+    stamp = `<div class="stamp PAID">PAID<small>sandbox</small></div>`;
+  } else if (v){
+    stamp = `<div class="stamp ${esc(v.status)}">${esc(v.status)}<small>risk ${esc(v.risk_score)}/100</small></div>`;
+  }
+  if (s.status === "NEEDS_INFO"){
+    body = `<p class="notice warn">${esc(s.message)}</p>`;
+  } else if (s.status === "BLOCKED"){
+    body = `<dl class="fields"><dt>Pay to</dt><dd>${esc(s.invoice?.payee)}</dd><dt>Account</dt><dd>${esc(s.invoice?.account_masked)}</dd>
+      <dt>Amount</dt><dd>${esc(s.invoice?.amount?.text)}</dd></dl>
+      <p class="notice bad"><strong>Do not pay this invoice.</strong> ${esc(s.message.replace(/^Payment blocked: /, ""))}</p>
+      <p class="fine">Blocked payments cannot be approved, not even with extra confirmation.</p>`;
+  } else if (p){
+    const review = p.verification_status === "REVIEW";
+    const done = s.status === "EXECUTED";
+    body = `<dl class="fields">
+        <dt>Pay to</dt><dd>${esc(p.beneficiary.name)}</dd>
+        <dt>Account</dt><dd>${esc(p.beneficiary.account)}${p.beneficiary.bic ? ` · ${esc(p.beneficiary.bic)}` : ""}</dd>
+        <dt>They receive</dt><dd class="big">${esc(p.dst_amount.text)}</dd>
+        <dt>You pay</dt><dd class="big">${esc(p.src_total.text)}</dd>
+        <dt>Route</dt><dd>${esc(p.route_name)}</dd>
+        <dt>Arrives by</dt><dd>${esc(p.arrives_by)} <span class="${p.deadline_ok ? "yes" : "no"}">(${p.deadline_ok ? "before" : "after"} due date ${esc(p.due_date)})</span></dd>
+      </dl>
+      <p class="explain">${esc(done ? s.message : p.explanation)}</p>
+      <div class="fp">Plan fingerprint <code>${esc(p.plan_hash)}</code></div>
+      ${done ? `<p class="notice ok">Receipt #${esc(s.receipt.id)}: ${esc(s.receipt.debited.text)} debited, ${esc(s.receipt.received.text)} delivered.</p>` : `
+      ${review ? `<label class="stepup"><input type="checkbox" id="stepup"> <span>I confirmed these payment details through the institution's official website or phone number, not through this invoice.</span></label>` : ""}
+      <button class="sign" id="approve" type="button" ${review ? "disabled" : ""}>Approve and pay ${esc(p.src_total.text)}</button>
+      <p class="fine">Your approval covers exactly this slip. If any detail changes it stops working, and it expires after 10 minutes. The AI agent cannot approve for you.</p>`}`;
+  } else if (s.status === "ERROR" || s.status === "NEEDS_FUNDS"){
+    body = `<p class="notice ${s.status === "NEEDS_FUNDS" ? "warn" : "bad"}">${s.status === "NEEDS_FUNDS" ? "<strong>Not enough money for this payment.</strong> " : ""}${esc(s.message)}</p>`;
+  } else {
+    body = `<p class="ref">Pick an invoice and run the agent. Your slip appears here to approve.</p>`;
+  }
+  if (res.denied) body += `<p class="notice bad"><strong>Not paid (${esc(res.denied)}).</strong> ${esc(res.message)}</p>`;
+  el.innerHTML = `<h2 id="h-slip">Payment slip</h2>${p || v ? `<p class="ref">${esc(s.invoice?.reference || "No reference")}</p>` : ""}${stamp}${body}`;
+  const key = stamp + (s.status || "");
+  if (stamp && key !== lastStamp){ el.querySelector(".stamp")?.classList.add("land"); }
+  lastStamp = key;
+  const cb = $("stepup"), btn = $("approve");
+  if (cb && btn) cb.addEventListener("change", () => { btn.disabled = !cb.checked; });
+  if (btn) btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    render(await api("/api/approve", {plan_hash: p.plan_hash, step_up: !!(cb && cb.checked)}));
+    loadAudit();
+  });
+}
+
+async function loadSamples(){
+  const list = await api("/api/samples");
+  const box = $("samples");
+  box.innerHTML = "";
+  (Array.isArray(list) ? list : Object.values(list).filter(x => x && x.id)).forEach((x, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = x.label; b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", () => {
+      box.querySelectorAll("button").forEach(y => y.setAttribute("aria-pressed", "false"));
+      b.setAttribute("aria-pressed", "true"); $("doc").value = x.text;
+    });
+    box.appendChild(b);
+    if (i === 0){ b.setAttribute("aria-pressed", "true"); $("doc").value = x.text; }
+  });
+}
+
+async function loadAudit(){
+  const a = await api("/api/audit");
+  $("chain").innerHTML = a.chain_ok ? `<span class="chain-ok">Chain intact</span> across ${esc(a.rows.length)} recent entries.`
+                                    : `<span class="chain-bad">Chain broken at entry ${esc(a.first_bad_seq)}.</span>`;
+  $("audit-t").innerHTML = `<thead><tr><th>#</th><th>Who</th><th>What</th><th>Hash</th></tr></thead><tbody>` +
+    a.rows.slice().reverse().slice(0, 25).map(r => `<tr><td>${esc(r.seq)}</td><td>${esc(r.actor)}</td><td>${esc(r.action)}</td><td><code>${esc(r.hash.slice(0, 16))}…</code></td></tr>`).join("") + "</tbody>";
+}
+
+$("run").addEventListener("click", async () => {
+  const btn = $("run"); btn.disabled = true; btn.textContent = "Agent is working…";
+  try { const r = await api("/api/run", {text: $("doc").value}); if (r.error) alert(r.error); else render(r); loadAudit(); }
+  finally { btn.disabled = false; btn.textContent = "Run the agent"; }
+});
+$("reset").addEventListener("click", async () => { render(await api("/api/reset", {})); lastStamp = ""; $("audit-t").innerHTML = ""; $("chain").textContent = ""; });
+$("audit").addEventListener("click", loadAudit);
+$("drills").addEventListener("click", async () => {
+  const btn = $("drills"); btn.disabled = true; btn.textContent = "Attacking…";
+  const r = await api("/api/drills", {});
+  const n = r.drills.filter(d => d.passed).length;
+  $("drills-t").innerHTML = `<caption style="text-align:left;padding:8px 0;font-weight:600">${n} of ${r.drills.length} attacks stopped${n === r.drills.length ? "; no money reached an attacker" : ""}</caption>
+    <thead><tr><th>Attack</th><th>Stopped by</th><th>Result</th></tr></thead><tbody>` +
+    r.drills.map(d => `<tr><td>${esc(d.attack)}</td><td>${esc(d.stopped_by)}<br><code>${esc(d.outcome)}</code></td><td class="${d.passed ? "yes" : "no"}">${d.passed ? "Stopped" : "Failed"}</td></tr>`).join("") + "</tbody>";
+  btn.disabled = false; btn.textContent = "Run all attacks";
+});
+
+(async () => { await loadSamples(); render(await api("/api/state")); })();
+</script>
+</body>
+</html>

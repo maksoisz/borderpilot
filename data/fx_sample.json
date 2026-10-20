@@ -1,0 +1,5 @@
+{
+  "_comment": "ILLUSTRATIVE SAMPLE RATES (units per 1 EUR), approximate levels only. NOT real-time and not for trading. The app labels quotes from this file as 'static-sample'.",
+  "as_of": "2026-10-18",
+  "rates_per_EUR": {"EUR": 1, "PLN": 4.25, "GBP": 0.86, "USD": 1.08, "CNY": 7.85, "CZK": 25.2, "SEK": 11.4}
+}
